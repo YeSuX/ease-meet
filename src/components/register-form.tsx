@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -15,16 +14,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { api } from "@/trpc/react";
 
-export function LoginForm({
+export function RegisterForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
+    name: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,55 +35,42 @@ export function LoginForm({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const registerMutation = api.auth.register.useMutation({
+    onSuccess: () => {
+      router.push("/login?registered=true");
+    },
+    onError: (error) => {
+      setError(error.message);
+    },
+  });
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    try {
-      setIsLoading(true);
-
-      const result = await signIn("credentials", {
-        email: formData.email,
-        password: formData.password,
-        redirect: false,
-      });
-
-      if (result?.error) {
-        throw new Error("邮箱或密码错误");
-      }
-
-      toast.success("登录成功！");
-      router.push("/");
-      router.refresh();
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "登录失败，请稍后再试",
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    try {
-      setIsLoading(true);
-      await signIn("google", { callbackUrl: "/" });
-    } catch (error) {
-      toast.error("Google 登录失败，请稍后再试");
-    } finally {
-      setIsLoading(false);
-    }
+    registerMutation.mutate(formData);
   };
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">登录</CardTitle>
-          <CardDescription>请输入您的邮箱和密码登录您的账户</CardDescription>
+          <CardTitle className="text-2xl">注册</CardTitle>
+          <CardDescription>创建一个新账户</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
             <div className="flex flex-col gap-6">
+              <div className="grid gap-2">
+                <Label htmlFor="name">用户名</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  type="text"
+                  placeholder="请输入用户名"
+                  required
+                  value={formData.name}
+                  onChange={handleChange}
+                />
+              </div>
               <div className="grid gap-2">
                 <Label htmlFor="email">邮箱</Label>
                 <Input
@@ -94,41 +84,37 @@ export function LoginForm({
                 />
               </div>
               <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">密码</Label>
-                  <a
-                    href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    忘记密码？
-                  </a>
-                </div>
+                <Label htmlFor="password">密码</Label>
                 <Input
                   id="password"
                   name="password"
                   type="password"
+                  placeholder="请输入密码"
                   required
                   value={formData.password}
                   onChange={handleChange}
                 />
               </div>
+              <div className="grid gap-2">
+                <Label htmlFor="confirmPassword">确认密码</Label>
+                <Input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  placeholder="请再次输入密码"
+                  required
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                />
+              </div>
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "登录中..." : "登录"}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={handleGoogleSignIn}
-                disabled={isLoading}
-              >
-                使用谷歌账号登录
+                {isLoading ? "注册中..." : "注册"}
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">
-              还没有账号？{" "}
-              <a href="/register" className="underline underline-offset-4">
-                注册
+              已有账号？{" "}
+              <a href="/login" className="underline underline-offset-4">
+                登录
               </a>
             </div>
           </form>
