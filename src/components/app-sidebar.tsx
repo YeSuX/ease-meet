@@ -52,37 +52,6 @@ const data = {
           title: "个人概览",
           url: "#",
         },
-        {
-          title: "快速操作",
-          url: "#",
-        },
-        {
-          title: "最近活动",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "日程管理",
-      url: "#",
-      icon: CalendarCheck,
-      items: [
-        {
-          title: "日历视图",
-          url: "#",
-        },
-        {
-          title: "列表视图",
-          url: "#",
-        },
-        {
-          title: "创建日程",
-          url: "#",
-        },
-        {
-          title: "重复日程设置",
-          url: "#",
-        },
       ],
     },
     {
@@ -119,14 +88,6 @@ const data = {
         },
         {
           title: "工作时间设置",
-          url: "#",
-        },
-        {
-          title: "休假安排",
-          url: "#",
-        },
-        {
-          title: "时区设置",
           url: "#",
         },
       ],
