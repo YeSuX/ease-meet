@@ -60,17 +60,6 @@ export function LoginForm({
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    try {
-      setIsLoading(true);
-      await signIn("google", { callbackUrl: "/" });
-    } catch (error) {
-      toast.error("Google 登录失败，请稍后再试");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -96,12 +85,6 @@ export function LoginForm({
               <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label htmlFor="password">密码</Label>
-                  <a
-                    href="#"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    忘记密码？
-                  </a>
                 </div>
                 <Input
                   id="password"
@@ -119,7 +102,9 @@ export function LoginForm({
                 type="button"
                 variant="outline"
                 className="w-full"
-                onClick={handleGoogleSignIn}
+                onClick={async () => {
+                  await signIn("google");
+                }}
                 disabled={isLoading}
               >
                 使用谷歌账号登录
