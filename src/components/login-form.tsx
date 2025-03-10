@@ -49,7 +49,7 @@ export function LoginForm({
       }
 
       toast.success("登录成功！");
-      router.push("/");
+      router.push("/dashboard");
       router.refresh();
     } catch (error) {
       toast.error(
