@@ -1,3 +1,4 @@
+import { sessions } from './../db/schema';
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { type DefaultSession, type NextAuthConfig } from "next-auth";
 import Google from "next-auth/providers/google";
@@ -5,7 +6,6 @@ import Google from "next-auth/providers/google";
 import { db } from "@/server/db";
 import {
   accounts,
-  sessions,
   users,
   verificationTokens,
 } from "@/server/db/schema";
@@ -22,6 +22,8 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
+      email: string;
+      name: string;
       // ...other properties
       // role: UserRole;
     } & DefaultSession["user"];
@@ -67,7 +69,7 @@ export const authConfig = {
           })
 
           console.log("验证结果:", result);
-          
+
           if (result.success && result.data) {
             return {
               id: result.data.user.id,
@@ -92,12 +94,31 @@ export const authConfig = {
     verificationTokensTable: verificationTokens,
   }),
   callbacks: {
-    session: ({ session, user }) => ({
+    jwt: ({ token, user }) => {
+      console.log('token',token);
+      console.log('user',user);
+      
+      if (user) {
+        token.id = user.id;
+        token.email = user.email;
+        token.name = user.name;
+      }
+      return token;
+    },
+    session: ({ session, token }) => ({
       ...session,
       user: {
         ...session.user,
-        id: user.id,
+        id: token.id as string,
       },
     }),
   },
+  session: {
+    strategy: 'jwt',
+  },
+  pages: {
+    signIn: '/login',
+  },
+  secret: process.env.AUTH_SECRET,
+  debug: process.env.NODE_ENV === 'development',
 } satisfies NextAuthConfig;

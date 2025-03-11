@@ -1,6 +1,6 @@
+"use client";
 
-
-import { AppSidebar } from "@/components/app-sidebar"
+import { AppSidebar } from "@/components/app-sidebar";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,20 +8,35 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/breadcrumb";
+import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
-import { auth } from "@/server/auth"
+} from "@/components/ui/sidebar";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
+export default function Page() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
-export default async function Page() {
-  const session = await auth()
-  console.log('session',session);
-  
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
+
+  if (status === "loading") {
+    return <div>加载中...</div>;
+  }
+
+  if (status === "unauthenticated") {
+    return null;
+  }
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -33,9 +48,7 @@ export default async function Page() {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">
-                    仪表盘
-                  </BreadcrumbLink>
+                  <BreadcrumbLink href="#">仪表盘</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
@@ -55,5 +68,5 @@ export default async function Page() {
         </div>
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }
