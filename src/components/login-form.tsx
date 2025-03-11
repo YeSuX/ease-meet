@@ -43,7 +43,6 @@ export function LoginForm({
         password: formData.password,
         redirect: false,
       });
-
       if (result?.error) {
         throw new Error("邮箱或密码错误");
       }

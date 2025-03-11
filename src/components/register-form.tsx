@@ -41,6 +41,7 @@ export function RegisterForm({
     },
     onError: (error) => {
       setError(error.message);
+      toast.error(error.message);
     },
   });
   

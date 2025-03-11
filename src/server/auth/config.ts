@@ -77,7 +77,6 @@ export const authConfig = {
           }
 
           console.log("验证失败，返回 null");
-          
           return null;
         } catch (error) {
           console.error("认证错误:", error);
