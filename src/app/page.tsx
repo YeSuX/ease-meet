@@ -17,15 +17,6 @@ export default function Home() {
     }
   }, [status, router]);
 
-  // 显示加载状态
-  if (status === "loading") {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen">
-        加载中...
-      </div>
-    );
-  }
-
   // 这部分内容只会在重定向前短暂显示
   return (
     <div className="flex flex-col items-center justify-center h-screen">

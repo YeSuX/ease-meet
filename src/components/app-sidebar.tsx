@@ -2,18 +2,11 @@
 
 import * as React from "react";
 import {
-  AudioWaveform,
-  Bell,
   BookOpen,
-  Bot,
-  Calendar,
-  CalendarCheck,
   Clock,
-  Command,
   GalleryVerticalEnd,
-  Gauge,
-  Settings2,
-  SquareTerminal,
+  Home,
+  Settings,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -32,97 +25,46 @@ const data = {
   user: {
     name: "suxiong",
     email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
   },
   teams: [
     {
       name: "易会",
       logo: GalleryVerticalEnd,
       plan: "会员版",
-    }
+    },
   ],
   navMain: [
     {
-      title: "仪表盘",
-      url: "#",
-      icon: Gauge,
-      isActive: true,
-      items: [
-        {
-          title: "个人概览",
-          url: "#",
-        },
-      ],
+      title: "首页",
+      url: "/dashboard",
+      icon: Home,
     },
     {
       title: "预约系统",
-      url: "#",
+      url: "/dashboard/appointment",
       icon: BookOpen,
-      items: [
-        {
-          title: "我的预约",
-          url: "#",
-        },
-        {
-          title: "创建预约",
-          url: "#",
-        },
-        {
-          title: "预约历史",
-          url: "#",
-        },
-        {
-          title: "预约模版",
-          url: "#",
-        },
-      ],
     },
     {
       title: "时间管理",
-      url: "#",
+      url: "/dashboard/time-management",
       icon: Clock,
-      items: [
-        {
-          title: "可用时段设置",
-          url: "#",
-        },
-        {
-          title: "工作时间设置",
-          url: "#",
-        },
-      ],
     },
     {
-      title: "通知中心",
-      url: "#",
-      icon: Bell,
-      items: [
-        {
-          title: "所有通知",
-          url: "#",
-        },
-        {
-          title: "未读通知",
-          url: "#",
-        },
-        {
-          title: "通知设置",
-          url: "#",
-        },
-      ],
+      title: "设置",
+      url: "/dashboard/settings",
+      icon: Settings,
     },
   ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar collapsible='icon' {...props}>
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="p-2">
         <NavMain items={data.navMain} />
-        {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
