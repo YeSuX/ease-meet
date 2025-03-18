@@ -30,7 +30,7 @@ const data = {
     {
       name: "易会",
       logo: GalleryVerticalEnd,
-      plan: "会员版",
+      // plan: "会员版",
     },
   ],
   navMain: [
