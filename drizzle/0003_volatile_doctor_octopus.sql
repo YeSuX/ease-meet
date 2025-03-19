@@ -1,0 +1,1 @@
+ALTER TABLE "ease-meet_user" ALTER COLUMN "image" SET DATA TYPE text;

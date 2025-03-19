@@ -45,13 +45,15 @@ export const users = createTable("user", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   name: varchar("name", { length: 255 }),
+  nickname: varchar("nickname", { length: 255 }),
   email: varchar("email", { length: 255 }).notNull(),
   password: varchar("password", { length: 255 }).notNull(),
-  emailVerified: timestamp("email_verified", {
+  image: text("image"),
+  pronouns: varchar("pronouns", { length: 255 }),
+  emailVerified: timestamp("emailVerified", {
     mode: "date",
     withTimezone: true,
   }).default(sql`CURRENT_TIMESTAMP`),
-  image: varchar("image", { length: 255 }),
 });
 
 export const usersRelations = relations(users, ({ many }) => ({

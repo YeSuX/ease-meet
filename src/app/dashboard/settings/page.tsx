@@ -30,24 +30,51 @@ import {
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Share2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
 
-// const formSchema = z.object({
-//   username: z.string().min(2, {
-//     message: "Username must be at least 2 characters.",
-//   }),
-// })
+const formSchema = z.object({
+  nickname: z.string().min(2, {
+    message: "昵称必须至少2个字符。",
+  }),
+  email: z.string().email({
+    message: "邮箱地址无效。",
+  }),
+  pronouns: z.string().min(2, {
+    message: "称谓代词必须至少2个字符。",
+  }),
+});
 
 const SettingsPage = () => {
-  const { data: session } = useSession();
-  const form = useForm();
+  const { data: session, status } = useSession();
+
   console.log(session);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      nickname: session?.user?.nickname,
+      email: session?.user?.email,
+      pronouns: session?.user?.pronouns,
+    },
+  });
+
+  useEffect(() => {
+    if (status === "authenticated" && session) {
+      form.reset({
+        nickname: session.user?.nickname,
+        email: session.user?.email,
+        pronouns: session.user?.pronouns,
+      });
+    }
+  }, [form, session, status]);
 
   return (
     <div className="">
@@ -66,7 +93,7 @@ const SettingsPage = () => {
         <Tooltip>
           <TooltipTrigger asChild>
             <Avatar className="size-28 cursor-pointer">
-              <AvatarImage src="https://github.com/shadcn.png" />
+              <AvatarImage src={session?.user?.image ?? ""} />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
           </TooltipTrigger>
@@ -74,9 +101,9 @@ const SettingsPage = () => {
         </Tooltip>
         <div className="mt-4 flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold">{session?.user?.name}</h1>
+            <h1 className="text-2xl font-bold">{session?.user?.nickname}</h1>
             <p className="text-sm text-muted-foreground">
-              Suxiong · he/him
+              {session?.user?.name} · {session?.user?.pronouns}
             </p>
           </div>
           <div>
@@ -97,19 +124,22 @@ const SettingsPage = () => {
                 <form action="">
                   <FormField
                     control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem className="mb-4">
-                        <FormLabel>昵称</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormDescription>
-                          这是大家认识你的第一印象，选一个独特的昵称吧！
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+                    name="nickname"
+                    render={({ field }) => {
+                      console.log(field);
+                      return (
+                        <FormItem className="mb-4">
+                          <FormLabel>昵称</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            这是大家认识你的第一印象，选一个独特的昵称吧！
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
                   />
                   <FormField
                     control={form.control}
@@ -131,28 +161,30 @@ const SettingsPage = () => {
                     control={form.control}
                     name="pronouns"
                     render={({ field }) => (
+                      console.log(field),
+                      (
                       <FormItem className="mb-4">
                         <FormLabel>称谓代词</FormLabel>
-                        <Select>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="选择一个称谓代词" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="m@example.com">
+                            <SelectItem value="dont_specify">
                               不指定
                             </SelectItem>
-                            <SelectItem value="m@example2.com">
+                            <SelectItem value="they/them">
                               they/them
                             </SelectItem>
-                            <SelectItem value="m@google.com">
+                            <SelectItem value="she/her">
                               she/her
                             </SelectItem>
-                            <SelectItem value="m@support.com">
+                            <SelectItem value="he/him">
                               he/him
                             </SelectItem>
-                            <SelectItem value="m@support3.com">
+                            <SelectItem value="custom">
                               自定义
                             </SelectItem>
                           </SelectContent>
@@ -162,7 +194,8 @@ const SettingsPage = () => {
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
-                    )}
+                    )
+                  )}
                   />
                 </form>
               </Form>

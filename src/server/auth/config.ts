@@ -11,6 +11,7 @@ import {
 } from "@/server/db/schema";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { createCaller } from "../api/root";
+import { AdapterUser } from 'next-auth/adapters';
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -24,15 +25,24 @@ declare module "next-auth" {
       id: string;
       email: string;
       name: string;
+      image: string;
+      nickname: string;
+      pronouns: string;
       // ...other properties
       // role: UserRole;
     } & DefaultSession["user"];
   }
 
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
+  interface User {
+    id?: string | undefined;
+    email?: string | undefined | null;
+    name?: string | undefined | null;
+    image?: string | undefined | null;
+    nickname?: string | undefined | null;
+    pronouns?: string | undefined | null;
+    // ...other properties
+    // role: UserRole;
+  }
 }
 
 /**
@@ -71,10 +81,15 @@ export const authConfig = {
           console.log("验证结果:", result);
 
           if (result.success && result.data) {
+            console.log('result.data',result.data);
+            
             return {
               id: result.data.user.id,
               email: result.data.user.email,
               name: result.data.user.name,
+              image: result.data.user.image,
+              nickname: result.data.user.nickname,
+              pronouns: result.data.user.pronouns,
             };
           }
 
@@ -94,24 +109,34 @@ export const authConfig = {
     verificationTokensTable: verificationTokens,
   }),
   callbacks: {
-    jwt: ({ token, user }) => {
-      console.log('token',token);
+    jwt: ({ token, user }) => {  
       console.log('user',user);
-      
+      console.log('token',token);
       if (user) {
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
+        token.image = user.image;
+        token.nickname = user.nickname;
+        token.pronouns = user.pronouns;
       }
       return token;
     },
-    session: ({ session, token }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: token.id as string,
-      },
-    }),
+    session: ({ session, token }) => {
+      console.log('session',session);
+      console.log('token',token);
+      
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: token.id as string,
+          image: token.image as string,
+          nickname: token.nickname as string,
+          pronouns: token.pronouns as string,
+        },
+      };
+    },
   },
   session: {
     strategy: 'jwt',

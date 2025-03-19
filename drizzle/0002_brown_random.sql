@@ -1,0 +1,1 @@
+ALTER TABLE "ease-meet_user" ADD COLUMN "emailVerified" timestamp with time zone DEFAULT CURRENT_TIMESTAMP;

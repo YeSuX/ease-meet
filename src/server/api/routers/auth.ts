@@ -5,13 +5,19 @@ import { createTRPCRouter, publicProcedure } from "../trpc";
 import { users } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import { loginSchema, registerSchema } from "@/schema/auth";
-import { compare, hash } from "bcryptjs";
+import bcrypt, { compare, hash } from "bcryptjs";
+import { createAvatar } from "@dicebear/core";
+import { openPeeps } from "@dicebear/collection";
+import { randomUUID } from "crypto";
 
 export const authRouter = createTRPCRouter({
     register: publicProcedure
         .input(registerSchema)
         .mutation(async ({ ctx, input }) => {
             const { name, email, password } = input;
+
+            // 创建头像
+            const avatar = `https://api.dicebear.com/9.x/open-peeps/svg?seed=${randomUUID()}`
 
             // 检查邮箱是否已存在
             const existingUser = await ctx.db.query.users.findFirst({
@@ -33,6 +39,9 @@ export const authRouter = createTRPCRouter({
                 name,
                 email,
                 password: hashedPassword,
+                image: avatar,
+                nickname: name,
+                pronouns: "they/them",
             });
 
             return {
@@ -45,15 +54,12 @@ export const authRouter = createTRPCRouter({
         .input(loginSchema)
         .query(async ({ ctx, input }) => {
             const { email, password } = input;
-            
-            // 添加调试日志
-            console.log("验证凭证:", email);
-            
+
             // 查找用户
             const user = await ctx.db.query.users.findFirst({
                 where: eq(users.email, email),
             });
-            
+
             if (!user?.password) {
                 console.log("用户不存在或没有密码");
                 throw new TRPCError({
@@ -61,11 +67,10 @@ export const authRouter = createTRPCRouter({
                     message: "邮箱或密码错误",
                 });
             }
-            
+
             // 验证密码
             const isPasswordValid = await compare(password, user.password);
-            console.log("密码验证结果:", isPasswordValid);
-            
+
             if (!isPasswordValid) {
                 console.log("密码不正确");
                 throw new TRPCError({
@@ -73,8 +78,7 @@ export const authRouter = createTRPCRouter({
                     message: "邮箱或密码错误",
                 });
             }
-            
-            console.log("验证成功");
+
             return {
                 success: true,
                 data: {
@@ -82,6 +86,9 @@ export const authRouter = createTRPCRouter({
                         id: user.id,
                         name: user.name,
                         email: user.email,
+                        image: user.image,
+                        nickname: user.nickname,
+                        pronouns: user.pronouns,
                     },
                 },
             };
