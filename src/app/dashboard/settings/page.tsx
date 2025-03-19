@@ -55,8 +55,6 @@ const formSchema = z.object({
 const SettingsPage = () => {
   const { data: session, status } = useSession();
 
-  console.log(session);
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -126,7 +124,6 @@ const SettingsPage = () => {
                     control={form.control}
                     name="nickname"
                     render={({ field }) => {
-                      console.log(field);
                       return (
                         <FormItem className="mb-4">
                           <FormLabel>昵称</FormLabel>
@@ -161,32 +158,23 @@ const SettingsPage = () => {
                     control={form.control}
                     name="pronouns"
                     render={({ field }) => (
-                      console.log(field),
-                      (
                       <FormItem className="mb-4">
                         <FormLabel>称谓代词</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="选择一个称谓代词" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="dont_specify">
-                              不指定
-                            </SelectItem>
-                            <SelectItem value="they/them">
-                              they/them
-                            </SelectItem>
-                            <SelectItem value="she/her">
-                              she/her
-                            </SelectItem>
-                            <SelectItem value="he/him">
-                              he/him
-                            </SelectItem>
-                            <SelectItem value="custom">
-                              自定义
-                            </SelectItem>
+                            <SelectItem value="dont_specify">不指定</SelectItem>
+                            <SelectItem value="they/them">they/them</SelectItem>
+                            <SelectItem value="she/her">she/her</SelectItem>
+                            <SelectItem value="he/him">he/him</SelectItem>
+                            <SelectItem value="custom">自定义</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormDescription>
@@ -194,8 +182,7 @@ const SettingsPage = () => {
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
-                    )
-                  )}
+                    )}
                   />
                 </form>
               </Form>

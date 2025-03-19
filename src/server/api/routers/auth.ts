@@ -61,7 +61,7 @@ export const authRouter = createTRPCRouter({
             });
 
             if (!user?.password) {
-                console.log("用户不存在或没有密码");
+                
                 throw new TRPCError({
                     code: "UNAUTHORIZED",
                     message: "邮箱或密码错误",
@@ -72,7 +72,7 @@ export const authRouter = createTRPCRouter({
             const isPasswordValid = await compare(password, user.password);
 
             if (!isPasswordValid) {
-                console.log("密码不正确");
+                
                 throw new TRPCError({
                     code: "UNAUTHORIZED",
                     message: "邮箱或密码错误",

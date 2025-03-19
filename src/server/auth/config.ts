@@ -61,13 +61,13 @@ export const authConfig = {
       },
       async authorize(credentials) {
         if (!credentials.email || !credentials.password) {
-          console.log("缺少凭证");
+          
           return null;
         }
 
         try {
           // 添加调试日志
-          console.log("尝试验证凭证:", credentials.email);
+          
           const caller = createCaller({
             db,
             headers: new Headers(),
@@ -78,10 +78,10 @@ export const authConfig = {
             password: credentials.password as string
           })
 
-          console.log("验证结果:", result);
+          
 
           if (result.success && result.data) {
-            console.log('result.data',result.data);
+            
             
             return {
               id: result.data.user.id,
@@ -93,7 +93,6 @@ export const authConfig = {
             };
           }
 
-          console.log("验证失败，返回 null");
           return null;
         } catch (error) {
           console.error("认证错误:", error);
@@ -110,8 +109,6 @@ export const authConfig = {
   }),
   callbacks: {
     jwt: ({ token, user }) => {  
-      console.log('user',user);
-      console.log('token',token);
       if (user) {
         token.id = user.id;
         token.email = user.email;
@@ -123,8 +120,6 @@ export const authConfig = {
       return token;
     },
     session: ({ session, token }) => {
-      console.log('session',session);
-      console.log('token',token);
       
       return {
         ...session,
