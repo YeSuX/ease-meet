@@ -56,6 +56,8 @@ export const users = createTable("user", {
   }).default(sql`CURRENT_TIMESTAMP`),
 });
 
+export type User = typeof users.$inferSelect;
+
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
 }));

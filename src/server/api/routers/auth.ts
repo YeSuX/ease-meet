@@ -1,13 +1,9 @@
-import { z } from "zod";
-// import { hash } from "bcrypt";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import { users } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import { loginSchema, registerSchema } from "@/schema/auth";
-import bcrypt, { compare, hash } from "bcryptjs";
-import { createAvatar } from "@dicebear/core";
-import { openPeeps } from "@dicebear/collection";
+import { compare, hash } from "bcryptjs";
 import { randomUUID } from "crypto";
 
 export const authRouter = createTRPCRouter({
