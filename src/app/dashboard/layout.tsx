@@ -1,42 +1,31 @@
-"use client";
-
 import { AppSidebar } from "@/components/app-sidebar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { getSession } from "@/lib/session";
+import { createCaller } from "@/server/api/root";
+import { createTRPCContext } from "@/server/api/trpc";
 import { Separator } from "@radix-ui/react-separator";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { notFound } from "next/navigation";
 
-const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
-  const { data: session, status } = useSession();
-  const router = useRouter();
+const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
+  const session = await getSession();
+  const caller = createCaller(
+    await createTRPCContext({
+      headers: new Headers(),
+    }),
+  );
+  const user = await caller.user.getUser({ id: session.user.id });
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
-    }
-  }, [status, router]);
-
-  if (status === "unauthenticated") {
-    return null;
+  if (!user) {
+    return notFound();
   }
-
 
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <AppSidebar user={user} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">
@@ -45,7 +34,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min relative">
+          <div className="relative min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min">
             {children}
           </div>
         </div>

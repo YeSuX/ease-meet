@@ -19,13 +19,10 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { type User } from "@/server/db/schema";
 
 // This is sample data.
 const data = {
-  user: {
-    name: "suxiong",
-    email: "m@example.com",
-  },
   teams: [
     {
       name: "易会",
@@ -57,9 +54,13 @@ const data = {
   ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+interface IAppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  user: User;
+}
+
+export function AppSidebar({ user, ...props }: IAppSidebarProps) {
   return (
-    <Sidebar collapsible='icon' {...props}>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
@@ -67,7 +68,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
