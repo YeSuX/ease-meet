@@ -36,24 +36,17 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-const formSchema = z.object({
-  nickname: z.string().min(2, {
-    message: "昵称必须至少2个字符。",
-  }),
-  email: z.string().email({
-    message: "邮箱地址无效。",
-  }),
-  pronouns: z.string().min(2, {
-    message: "称谓代词必须至少2个字符。",
-  }),
-});
+import { settingsFormSchema } from "@/schema/dashboard";
+import { type z } from "zod";
+import { api } from "@/trpc/react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const SettingsForm = ({ user }: { user: User }) => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const router = useRouter();
+  const form = useForm<z.infer<typeof settingsFormSchema>>({
+    resolver: zodResolver(settingsFormSchema),
     defaultValues: {
       nickname: user.nickname!,
       email: user.email,
@@ -61,8 +54,25 @@ const SettingsForm = ({ user }: { user: User }) => {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    console.log(data);
+  const updateUserMutation = api.user.updateUser.useMutation({
+    onSuccess: () => {
+      toast.success("更新成功");
+      router.refresh();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+  
+  const isSubmitting = updateUserMutation.isPending;
+
+  const onSubmit = (data: z.infer<typeof settingsFormSchema>) => {
+    updateUserMutation.mutate({
+      id: user.id,
+      nickname: data.nickname,
+      email: data.email,
+      pronouns: data.pronouns,
+    });
   };
 
   return (
@@ -108,80 +118,82 @@ const SettingsForm = ({ user }: { user: User }) => {
             <CardDescription>
               编辑你的个人资料，包括头像、昵称、邮箱等。
             </CardDescription>
-            <CardContent>
-              <Form {...form}>
-                <form action="">
-                  <FormField
-                    control={form.control}
-                    name="nickname"
-                    render={({ field }) => {
-                      return (
-                        <FormItem className="mb-4">
-                          <FormLabel>昵称</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormDescription>
-                            这是大家认识你的第一印象，选一个独特的昵称吧！
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      );
-                    }}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
+          </CardHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <CardContent>
+                <FormField
+                  control={form.control}
+                  name="nickname"
+                  render={({ field }) => {
+                    return (
                       <FormItem className="mb-4">
-                        <FormLabel>邮箱</FormLabel>
+                        <FormLabel>昵称</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
                         <FormDescription>
-                          让朋友们能够方便地联系到你，保持联络很重要呢
+                          这是大家认识你的第一印象，选一个独特的昵称吧！
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="pronouns"
-                    render={({ field }) => (
-                      <FormItem className="mb-4">
-                        <FormLabel>称谓代词</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="选择一个称谓代词" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="dont_specify">不指定</SelectItem>
-                            <SelectItem value="they/them">they/them</SelectItem>
-                            <SelectItem value="she/her">she/her</SelectItem>
-                            <SelectItem value="he/him">he/him</SelectItem>
-                            <SelectItem value="custom">自定义</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormDescription>
-                          帮助他人以你喜欢的方式称呼你，让交流更加贴心
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </form>
-              </Form>
-            </CardContent>
-            <CardFooter>
-              <Button>保存</Button>
-            </CardFooter>
-          </CardHeader>
+                    );
+                  }}
+                />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem className="mb-4">
+                      <FormLabel>邮箱</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        让朋友们能够方便地联系到你，保持联络很重要呢
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="pronouns"
+                  render={({ field }) => (
+                    <FormItem className="mb-4">
+                      <FormLabel>称谓代词</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="选择一个称谓代词" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="dont_specify">不指定</SelectItem>
+                          <SelectItem value="they/them">they/them</SelectItem>
+                          <SelectItem value="she/her">she/her</SelectItem>
+                          <SelectItem value="he/him">he/him</SelectItem>
+                          <SelectItem value="custom">自定义</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        帮助他人以你喜欢的方式称呼你，让交流更加贴心
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+              <CardFooter>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "保存中..." : "保存"}
+                </Button>
+              </CardFooter>
+            </form>
+          </Form>
         </Card>
       </div>
     </div>

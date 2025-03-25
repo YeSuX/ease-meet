@@ -49,7 +49,9 @@ export const users = createTable("user", {
   email: varchar("email", { length: 255 }).notNull(),
   password: varchar("password", { length: 255 }).notNull(),
   image: text("image"),
-  pronouns: varchar("pronouns", { length: 255 }),
+  pronouns: varchar("pronouns", {
+    enum: ["dont_specify", "they/them", "she/her", "he/him", "custom"],
+  }),
   emailVerified: timestamp("emailVerified", {
     mode: "date",
     withTimezone: true,

@@ -1,0 +1,1 @@
+ALTER TABLE "ease-meet_user" ALTER COLUMN "pronouns" SET DATA TYPE varchar;
