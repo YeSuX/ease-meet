@@ -11,7 +11,6 @@ import {
 } from "@/server/db/schema";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { createCaller } from "../api/root";
-import { AdapterUser } from 'next-auth/adapters';
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -31,17 +30,6 @@ declare module "next-auth" {
       // ...other properties
       // role: UserRole;
     } & DefaultSession["user"];
-  }
-
-  interface User {
-    id?: string | undefined;
-    email?: string | undefined | null;
-    name?: string | undefined | null;
-    image?: string | undefined | null;
-    nickname?: string | undefined | null;
-    pronouns?: string | undefined | null;
-    // ...other properties
-    // role: UserRole;
   }
 }
 
@@ -85,11 +73,6 @@ export const authConfig = {
             
             return {
               id: result.data.user.id,
-              email: result.data.user.email,
-              name: result.data.user.name,
-              image: result.data.user.image,
-              nickname: result.data.user.nickname,
-              pronouns: result.data.user.pronouns,
             };
           }
 
@@ -111,11 +94,6 @@ export const authConfig = {
     jwt: ({ token, user }) => {  
       if (user) {
         token.id = user.id;
-        token.email = user.email;
-        token.name = user.name;
-        token.image = user.image;
-        token.nickname = user.nickname;
-        token.pronouns = user.pronouns;
       }
       return token;
     },
@@ -126,9 +104,6 @@ export const authConfig = {
         user: {
           ...session.user,
           id: token.id as string,
-          image: token.image as string,
-          nickname: token.nickname as string,
-          pronouns: token.pronouns as string,
         },
       };
     },
