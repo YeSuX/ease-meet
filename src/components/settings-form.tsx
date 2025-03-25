@@ -63,7 +63,7 @@ const SettingsForm = ({ user }: { user: User }) => {
       toast.error(error.message);
     },
   });
-  
+
   const isSubmitting = updateUserMutation.isPending;
 
   const onSubmit = (data: z.infer<typeof settingsFormSchema>) => {
@@ -122,24 +122,24 @@ const SettingsForm = ({ user }: { user: User }) => {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <CardContent>
-                <FormField
-                  control={form.control}
-                  name="nickname"
-                  render={({ field }) => {
-                    return (
-                      <FormItem className="mb-4">
-                        <FormLabel>昵称</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormDescription>
-                          这是大家认识你的第一印象，选一个独特的昵称吧！
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    );
-                  }}
-                />
+                  <FormField
+                    control={form.control}
+                    name="nickname"
+                    render={({ field }) => {
+                      return (
+                        <FormItem className="mb-4">
+                          <FormLabel>昵称</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            这是大家认识你的第一印象，选一个独特的昵称吧！
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
+                  />
                 <FormField
                   control={form.control}
                   name="email"
