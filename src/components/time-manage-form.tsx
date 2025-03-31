@@ -99,7 +99,6 @@ const TimeManageForm = () => {
             control={form.control}
             name="weeklySchedule"
             render={({ field }) => {
-              console.log(field, "field");
               return (
                 <>
                   {field.value.map((item) => (

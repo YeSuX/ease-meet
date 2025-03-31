@@ -21,7 +21,6 @@ const dailyScheduleSchema = z.object({
     toTime: z.string().min(1, { message: "请设置结束时间" }),
     isActive: z.boolean().default(false),
 }).refine((data) => {
-    console.log(data, 'data');
     if (!data.isActive) return true; // 如果未激活，不检查时间
 
     // 将时间字符串转换为分钟数进行比较

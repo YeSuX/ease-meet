@@ -1,0 +1,1 @@
+ALTER TABLE "ease-meet_availability" ALTER COLUMN "day" SET DATA TYPE varchar;

@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, publicProcedure } from "../trpc";
-import { users } from "@/server/db/schema";
+import { availability, users } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import { loginSchema, registerSchema } from "@/schema/auth";
 import { compare, hash } from "bcryptjs";
@@ -31,14 +31,26 @@ export const authRouter = createTRPCRouter({
             const hashedPassword = await hash(password, 10);
 
             // 创建用户
-            await ctx.db.insert(users).values({
+            const newUser = await ctx.db.insert(users).values({
                 name,
                 email,
                 password: hashedPassword,
                 image: avatar,
                 nickname: name,
                 pronouns: "they/them",
-            });
+            }).returning();
+
+            const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+            await ctx.db.insert(availability).values(
+                days.map((day, index) => ({
+                    userId: newUser[0]?.id ?? "",
+                    day: day,
+                    fromTime: "09:00",
+                    toTime: "17:00",
+                    isActive: true,
+                    id: index.toString()
+                }))
+            );
 
             return {
                 success: true,
@@ -57,7 +69,7 @@ export const authRouter = createTRPCRouter({
             });
 
             if (!user?.password) {
-                
+
                 throw new TRPCError({
                     code: "UNAUTHORIZED",
                     message: "邮箱或密码错误",
@@ -68,7 +80,7 @@ export const authRouter = createTRPCRouter({
             const isPasswordValid = await compare(password, user.password);
 
             if (!isPasswordValid) {
-                
+
                 throw new TRPCError({
                     code: "UNAUTHORIZED",
                     message: "邮箱或密码错误",

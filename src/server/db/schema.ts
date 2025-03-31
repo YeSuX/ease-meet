@@ -1,11 +1,15 @@
 import { relations, sql } from "drizzle-orm";
 import {
+  boolean,
   index,
   integer,
+  jsonb,
+  pgEnum,
   pgTableCreator,
   primaryKey,
   text,
   timestamp,
+  uuid,
   varchar,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
@@ -59,10 +63,6 @@ export const users = createTable("user", {
 });
 
 export type User = typeof users.$inferSelect;
-
-export const usersRelations = relations(users, ({ many }) => ({
-  accounts: many(accounts),
-}));
 
 export const accounts = createTable(
   "account",
@@ -134,3 +134,34 @@ export const verificationTokens = createTable(
     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
   })
 );
+
+export const dayEnum = pgEnum('day', [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday'
+]);
+
+export const availability = createTable('availability', {
+  id: varchar('id', { length: 255 }).primaryKey().$defaultFn(() => crypto.randomUUID()),
+  day: varchar('day', { enum: Object.values(dayEnum) as [string, ...string[]] }).notNull(),
+  fromTime: text('from_time').notNull(),
+  toTime: text('to_time').notNull(),
+  isActive: boolean('is_active').notNull().default(true),
+  userId: varchar('user_id', { length: 255 }).notNull().references(() => users.id),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().default(sql`CURRENT_TIMESTAMP`).$onUpdate(() => new Date()),
+})
+
+export const availabilityRelations = relations(availability, ({ one }) => ({
+  user: one(users, { fields: [availability.userId], references: [users.id] }),
+}))
+
+
+export const userRelations = relations(users, ({ many }) => ({
+  availability: many(availability),
+  accounts: many(accounts),
+}))

@@ -1,0 +1,1 @@
+ALTER TABLE "ease-meet_user" DROP COLUMN IF EXISTS "availability";
