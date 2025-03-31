@@ -8,9 +8,21 @@ import {
 import { Form } from "@/components/ui/form";
 import { getSession } from "@/lib/session";
 import TimeManageForm from "@/components/time-manage-form";
+import { createCaller } from "@/server/api/root";
+import { createTRPCContext } from "@/server/api/trpc";
 const TimeManagementPage = async () => {
   const session = await getSession();
+  const caller = createCaller(
+    await createTRPCContext({
+      headers: new Headers(),
+    }),
+  );
+  const availability = await caller.availability.getAvailability({
+    userId: session.user.id,
+  });
 
+  console.log(availability, "availability");
+  
   return (
     <Card>
       <CardHeader>

@@ -4,10 +4,20 @@ import { availability } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 
 const availabilityRouter = createTRPCRouter({
-    getAvailability: publicProcedure.query(async ({ ctx }) => {
-        const availability = await ctx.db.query.availability.findMany();
+    getAvailability: publicProcedure.input(z.object({
+        userId: z.string(),
+    })).query(async ({ ctx, input }) => {
+        const availabilityRecords = await ctx.db.query.availability.findMany({
+            where: eq(availability.userId, input.userId),
+        });
 
-        return availability;
+        return availabilityRecords.map(item => ({
+            id: item.id,
+            isActive: item.isActive,
+            fromTime: item.fromTime,
+            toTime: item.toTime,
+            day: item.day
+        }));
     }),
     updateAvailability: publicProcedure.input(z.object({
         fromTime: z.string(),
