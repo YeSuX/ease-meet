@@ -26,15 +26,41 @@ import {
   SelectValue,
 } from "./ui/select";
 import { times } from "@/lib/enums";
+import { api } from "@/trpc/react";
+import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 
 const TimeManageForm = ({ data }: { data: WeeklySchedule }) => {
+  const { data: session } = useSession();
   const form = useForm<WeeklySchedule>({
     resolver: zodResolver(timeManagementFormSchema),
     defaultValues: data,
   });
 
+  const { mutate, isPending } = api.availability.updateAvailabilityBatch.useMutation({
+    onSuccess: () => {
+      toast.success("所有时间段更新成功");
+    },
+    onError: () => {
+      toast.error("更新失败，请重试");
+    },
+  });
+
   const handleSubmit = (data: WeeklySchedule) => {
-    console.log(data);
+    // 按照 id 排序
+    const sortedUpdates = [...data.weeklySchedule]
+      .sort((a, b) => parseInt(a.id) - parseInt(b.id))
+      .map((schedule) => ({
+        id: schedule.id,
+        fromTime: schedule.fromTime,
+        toTime: schedule.toTime,
+        isActive: schedule.isActive,
+        userId: session?.user.id ?? "",
+      }));
+
+    mutate({
+      updates: sortedUpdates,
+    });
   };
 
   return (
@@ -47,7 +73,7 @@ const TimeManageForm = ({ data }: { data: WeeklySchedule }) => {
             render={({ field }) => {
               return (
                 <>
-                  {field.value.map((item,index) => (
+                  {field.value.map((item, index) => (
                     <FormItem key={item.id}>
                       <div
                         className="grid grid-cols-1 items-center gap-4 md:grid-cols-3"
@@ -153,7 +179,9 @@ const TimeManageForm = ({ data }: { data: WeeklySchedule }) => {
           />
         </CardContent>
         <CardFooter>
-          <Button type="submit">保存</Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending ? "保存中..." : "保存"}
+          </Button>
         </CardFooter>
       </form>
     </Form>
