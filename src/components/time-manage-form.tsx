@@ -27,64 +27,10 @@ import {
 } from "./ui/select";
 import { times } from "@/lib/enums";
 
-const defaultValues: WeeklySchedule = {
-  weeklySchedule: [
-    {
-      fromTime: "08:00",
-      toTime: "18:00",
-      isActive: true,
-      dayName: "周一",
-      dayIndex: 0,
-    }, // 周一
-    {
-      fromTime: "08:00",
-      toTime: "18:00",
-      isActive: true,
-      dayName: "周二",
-      dayIndex: 1,
-    }, // 周二
-    {
-      fromTime: "08:00",
-      toTime: "18:00",
-      isActive: true,
-      dayName: "周三",
-      dayIndex: 2,
-    }, // 周三
-    {
-      fromTime: "08:00",
-      toTime: "18:00",
-      isActive: true,
-      dayName: "周四",
-      dayIndex: 3,
-    }, // 周四
-    {
-      fromTime: "08:00",
-      toTime: "18:00",
-      isActive: true,
-      dayName: "周五",
-      dayIndex: 4,
-    }, // 周五
-    {
-      fromTime: "08:00",
-      toTime: "18:00",
-      isActive: true,
-      dayName: "周六",
-      dayIndex: 5,
-    }, // 周六
-    {
-      fromTime: "08:00",
-      toTime: "18:00",
-      isActive: true,
-      dayName: "周日",
-      dayIndex: 6,
-    }, // 周日
-  ],
-};
-
-const TimeManageForm = () => {
+const TimeManageForm = ({ data }: { data: WeeklySchedule }) => {
   const form = useForm<WeeklySchedule>({
     resolver: zodResolver(timeManagementFormSchema),
-    defaultValues,
+    defaultValues: data,
   });
 
   const handleSubmit = (data: WeeklySchedule) => {
@@ -101,21 +47,21 @@ const TimeManageForm = () => {
             render={({ field }) => {
               return (
                 <>
-                  {field.value.map((item) => (
-                    <FormItem key={item.dayIndex}>
+                  {field.value.map((item,index) => (
+                    <FormItem key={item.id}>
                       <div
                         className="grid grid-cols-1 items-center gap-4 md:grid-cols-3"
-                        key={item.dayIndex}
+                        key={item.id}
                       >
                         <input
                           type="hidden"
-                          value={item.dayIndex}
-                          name={`dayIndex-${item.dayIndex}`}
+                          value={item.id}
+                          name={`id-${item.id}`}
                         />
                         <div className="flex items-center gap-x-3">
                           <FormField
                             control={form.control}
-                            name={`weeklySchedule.${item.dayIndex}.isActive`}
+                            name={`weeklySchedule.${index}.isActive`}
                             render={({ field }) => (
                               <FormItem>
                                 <FormControl>
@@ -127,17 +73,17 @@ const TimeManageForm = () => {
                               </FormItem>
                             )}
                           />
-                          <p>{item.dayName}</p>
+                          <p>{item.day}</p>
                         </div>
                         <FormField
                           control={form.control}
-                          name={`weeklySchedule.${item.dayIndex}.fromTime`}
+                          name={`weeklySchedule.${index}.fromTime`}
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>开始时间</FormLabel>
                               <FormControl>
                                 <Select
-                                  name={`fromTime-${item.dayIndex}`}
+                                  name={`fromTime-${item.id}`}
                                   defaultValue={item.fromTime}
                                   onValueChange={field.onChange}
                                   disabled={!item.isActive}
@@ -166,13 +112,13 @@ const TimeManageForm = () => {
 
                         <FormField
                           control={form.control}
-                          name={`weeklySchedule.${item.dayIndex}.toTime`}
+                          name={`weeklySchedule.${index}.toTime`}
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>结束时间</FormLabel>
                               <FormControl>
                                 <Select
-                                  name={`toTime-${item.dayIndex}`}
+                                  name={`toTime-${item.id}`}
                                   defaultValue={item.toTime}
                                   onValueChange={field.onChange}
                                   disabled={!item.isActive}

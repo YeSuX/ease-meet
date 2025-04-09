@@ -29,7 +29,7 @@ const TimeManagementPage = async () => {
         <CardTitle>日程安排</CardTitle>
         <CardDescription>设置可预约时段，轻松掌控会面安排</CardDescription>
       </CardHeader>
-      <TimeManageForm />
+      <TimeManageForm data={{ weeklySchedule: availability }} />
     </Card>
   );
 };

@@ -52,8 +52,8 @@ export const timeManagementFormSchema = z.object({
     // 添加星期几的标识，方便前端使用
     weeklySchedule: data.weeklySchedule.map((schedule, index) => ({
         ...schedule,
-        dayName: ["周一", "周二", "周三", "周四", "周五", "周六", "周日"][index],
-        dayIndex: index,
+        day: ["周一", "周二", "周三", "周四", "周五", "周六", "周日"][index],
+        id: index.toString(),
     }))
 }));
 

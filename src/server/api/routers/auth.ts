@@ -40,7 +40,7 @@ export const authRouter = createTRPCRouter({
                 pronouns: "they/them",
             }).returning();
 
-            const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+            const days = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"];
             await ctx.db.insert(availability).values(
                 days.map((day, index) => ({
                     userId: newUser[0]?.id ?? "",
